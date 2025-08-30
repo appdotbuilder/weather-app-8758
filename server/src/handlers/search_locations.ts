@@ -1,32 +1,38 @@
+import { db } from '../db';
+import { locationsTable } from '../db/schema';
 import { type Location } from '../schema';
+import { ilike, or } from 'drizzle-orm';
 
 export const searchLocations = async (query: string): Promise<Location[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to search for locations by city name.
-    // It should:
-    // 1. Search locations in the database by city name (case-insensitive)
-    // 2. Optionally integrate with external geocoding API for broader search
-    // 3. Return array of matching locations
-    // 4. Limit results to prevent overwhelming the client
+  try {
+    // Sanitize and prepare search query
+    const searchTerm = query.trim();
     
-    const mockLocations: Location[] = [
-        {
-            id: 1,
-            city: `${query} City 1`,
-            country: "Country A",
-            latitude: 40.7128,
-            longitude: -74.0060,
-            created_at: new Date()
-        },
-        {
-            id: 2,
-            city: `${query} City 2`,
-            country: "Country B",
-            latitude: 51.5074,
-            longitude: -0.1278,
-            created_at: new Date()
-        }
-    ];
+    if (!searchTerm) {
+      return [];
+    }
 
-    return Promise.resolve(mockLocations);
+    // Search locations by city name (case-insensitive)
+    // Also search by country for broader results
+    const results = await db.select()
+      .from(locationsTable)
+      .where(
+        or(
+          ilike(locationsTable.city, `%${searchTerm}%`),
+          ilike(locationsTable.country, `%${searchTerm}%`)
+        )
+      )
+      .limit(20) // Limit results to prevent overwhelming the client
+      .execute();
+
+    // Convert results to match the schema (handle real type conversion)
+    return results.map(location => ({
+      ...location,
+      latitude: Number(location.latitude), // Convert real to number
+      longitude: Number(location.longitude) // Convert real to number
+    }));
+  } catch (error) {
+    console.error('Location search failed:', error);
+    throw error;
+  }
 };

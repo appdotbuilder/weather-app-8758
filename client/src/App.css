@@ -9,6 +9,37 @@
   --gradient-color: rgba(0,0,0,0.03);
 }
 
+/* Add custom weather app styles */
+.weather-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+/* Ensure proper scrolling on mobile */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Custom animations for weather elements */
+@keyframes weatherPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.weather-pulse {
+  animation: weatherPulse 2s ease-in-out infinite;
+}
+
+/* Smooth transitions for all interactive elements */
+.weather-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.weather-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
       --background: #000;
